@@ -1,5 +1,7 @@
 # qemugui
 
+> A GUI for QEMU, build with Tauri and Vue.js
+
 ## Project setup
 ```
 yarn install

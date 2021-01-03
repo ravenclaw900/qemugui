@@ -1,30 +1,80 @@
 <template>
-  <div id="nav">
-    <router-link to="/">Home</router-link> |
-    <router-link to="/about">About</router-link>
-  </div>
-  <router-view />
+  <ActionBar />
+  <VMList />
+  <SettingsPane />
 </template>
 
+<script>
+import VMList from "@/components/VMList.vue";
+import SettingsPane from "@/components/SettingsPane.vue";
+import ActionBar from "@/components/ActionBar.vue";
+import { ipcRenderer } from "electron";
+
+export default {
+  components: {
+    VMList,
+    SettingsPane,
+    ActionBar
+  },
+  mounted() {
+    ipcRenderer.on("newVM", () => {
+      this.$router.push("/new");
+    });
+    ipcRenderer.on("deleteVM", () => {
+      this.$router.push("/delete");
+    });
+    ipcRenderer.on("diskImages", () => {
+      this.$router.push("/image");
+    });
+  }
+};
+</script>
+
 <style lang="scss">
+html,
+body,
 #app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
+  height: 100%;
+  margin: 0;
+  overflow: hidden;
+  font-family: sans-serif;
 }
-
-#nav {
-  padding: 30px;
-
-  a {
-    font-weight: bold;
-    color: #2c3e50;
-
-    &.router-link-exact-active {
-      color: #42b983;
+.floatChild {
+  height: 92%;
+  float: left;
+}
+a {
+  display: inline-block;
+  cursor: default;
+  color: black;
+  text-decoration: none;
+}
+.slider {
+  appearance: none;
+  background: rgb(185, 185, 185);
+  height: 3px;
+  outline: none;
+  width: 80%;
+  &::-webkit-slider-thumb {
+    appearance: none;
+    background-color: white;
+    height: 15px;
+    width: 15px;
+    border-radius: 50%;
+    border: 1px solid rgb(201, 201, 201);
+    &:active {
+      background-color: rgb(240, 240, 240);
     }
   }
+}
+.sliderBox {
+  width: 10%;
+}
+form {
+  width: 100%;
+  text-align: center;
+}
+ul {
+  list-style: none;
 }
 </style>
