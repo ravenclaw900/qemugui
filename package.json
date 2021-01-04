@@ -5,18 +5,20 @@
   "scripts": {
     "lint": "vue-cli-service lint",
     "icon": "tauri icon -i",
-    "build": "vue-cli-service tauri:build",
+    "build": "vue-cli-service --mode production tauri:build",
     "dev": "vue-cli-service tauri:serve",
     "debug": "RUST_DEBUG=1 vue-cli-service tauri:serve"
   },
   "dependencies": {
     "core-js": "^3.6.5",
     "fs-extra": "^9.0.1",
+    "store": "^2.0.12",
     "vue": "^3.0.0",
     "vue-router": "^4.0.0-0"
   },
   "devDependencies": {
     "@types/fs-extra": "^9.0.6",
+    "@types/store": "^2.0.2",
     "@typescript-eslint/eslint-plugin": "^2.33.0",
     "@typescript-eslint/parser": "^2.33.0",
     "@vue/cli-plugin-babel": "~4.5.0",
