@@ -59,8 +59,9 @@
               v-for="(item, index) in avalibleVM"
               :key="index"
               :value="item"
-              >{{ item }}</option
             >
+              {{ item }}
+            </option>
           </select>
         </VMSetupForm>
         <input type="submit" value="Create" />
@@ -103,12 +104,9 @@
       <label for="forVM">For: </label>
       <select v-model="vm" name="forVM" class="longWidth">
         <option value="none">None</option>
-        <option
-          v-for="(item, index) in avalibleVM"
-          :key="index"
-          :value="item"
-          >{{ item }}</option
-        >
+        <option v-for="(item, index) in avalibleVM" :key="index" :value="item">
+          {{ item }}
+        </option>
       </select>
     </template>
   </div>
@@ -117,18 +115,13 @@
 <script lang="ts">
 import { defineComponent } from "vue";
 import { join, basename, dirname, extname } from "path";
-import { remote } from "electron";
 import { glob } from "glob";
 import { exec } from "child_process";
 import { ensureDir, move, appendFile } from "fs-extra";
-import Store from "electron-store";
-import fixPath from "fix-path";
-
-fixPath();
+import { open, save } from "tauri/api/dialog";
+import data from "store";
 
 import VMSetupForm from "@/components/VMSetupForm.vue";
-
-const data = new Store();
 
 export default defineComponent({
   data() {
@@ -140,95 +133,65 @@ export default defineComponent({
       info: {
         "virtual-size": 0,
         format: "",
-        "actual-size": 0
+        "actual-size": 0,
       },
       create: false,
-      file: join(remote.app.getPath("documents"), "QEMU/NewVirtualDisk.qcow2"),
+      file: "~/Documents/QEMU/NewVirtualDisk.qcow2",
       createSize: 2,
       createType: "qcow2",
-      createVM: "none"
+      createVM: "none",
     };
   },
   components: {
-    VMSetupForm
+    VMSetupForm,
   },
   methods: {
     refreshTable() {
-      glob(
-        join(remote.app.getPath("documents"), "QEMU/**/*.+(qcow2|img)"),
-        (err, files) => {
-          this.known = this.knownOther.concat(files);
-        }
-      );
+      glob(join("~/Documents/QEMU/**/*.+(qcow2|img)"), (err, files) => {
+        this.known = this.knownOther.concat(files);
+      });
     },
     baseName(file: string) {
       return basename(file);
     },
     addDisk() {
-      const newDisk = remote.dialog.showOpenDialogSync({
-        filters: [
-          {
-            name: "All Valid Disk Images",
-            extensions: [
-              ".qcow2",
-              ".img",
-              ".cloop",
-              ".cow",
-              ".dmg",
-              ".nbd",
-              ".hdd",
-              ".qcow",
-              ".qed",
-              ".vdi",
-              ".vhdx",
-              ".vmdk",
-              ".vvfat"
-            ]
-          },
-          { name: "All Files", extensions: ["*"] }
-        ]
-      });
-      if (newDisk) {
-        this.knownOther.push(newDisk[0]);
+      open({
+        filter: "qcow2;img;cloop;cow;dmg;nbd;hdd;qcow;qed;vdi;vhdx;vmdk;vvfat",
+      }).then((val) => {
+        this.knownOther.push(val as string);
         this.refreshTable();
-      }
+      });
     },
     selectDir() {
-      const originalFile = basename(this.file);
-      const saveDir = remote.dialog.showOpenDialogSync({
-        properties: ["openDirectory", "createDirectory"]
-      });
-      if (saveDir) {
-        this.file = join(saveDir[0], originalFile);
-      }
+      save().then((val) => (this.file = val));
     },
     handleSubmit() {
       ensureDir(dirname(this.file));
       exec(
         `qemu-img create ${this.file} -f ${this.createType} ${this.createSize}G`,
-        err => console.warn(err)
+        (err) => console.warn(err)
       );
       if (this.createVM !== "none") {
         data.set(`${this.createVM}.disk`, this.file);
         data.set(`${this.createVM}.format`, this.info.format);
         data.set(`${this.createVM}.size`, this.info["virtual-size"]);
         appendFile(
-          join(remote.app.getPath("documents"), "QEMU", this.createVM, "run"),
+          join("~/Documents/QEMU", this.createVM, "run"),
           ` -hda ${this.file}`
         );
       }
       this.$router.push("/");
-    }
+    },
   },
   computed: {
     avalibleVM() {
       const avalibleList: string[] = [];
-      for (const element of data) {
-        const item = element[1] as object;
+      data.each((element) => {
+        const item = element[1];
         if (!("disk" in item)) {
           avalibleList.push(element[0]);
         }
-      }
+      });
       return avalibleList;
     },
     location: {
@@ -241,7 +204,7 @@ export default defineComponent({
           this.knownOther[this.item] = val;
         }
         move(this.known[this.item], val, () => this.refreshTable());
-      }
+      },
     },
     type: {
       get(): string {
@@ -271,7 +234,7 @@ export default defineComponent({
               ))
           );
         }
-      }
+      },
     },
     size: {
       get(): number {
@@ -286,21 +249,18 @@ export default defineComponent({
           `qemu-img resize${shrink}${this.location} ${val}`,
           () => (this.info["virtual-size"] = val)
         );
-      }
+      },
     },
     virtualSize(): string {
-      return `Virtual Size: ${this.info["virtual-size"]} (${this.info[
-        "virtual-size"
-      ] /
-        1024 /
-        1024 /
-        1024} GiB)`;
+      return `Virtual Size: ${this.info["virtual-size"]} (${
+        this.info["virtual-size"] / 1024 / 1024 / 1024
+      } GiB)`;
     },
     actualSize(): string {
-      return `Actual Size: ${this.info["actual-size"]} (${Math.round(
-        (this.info["actual-size"] / 1024 / 1024 / 1024) * 100
-      ) / 100} GiB)`;
-    }
+      return `Actual Size: ${this.info["actual-size"]} (${
+        Math.round((this.info["actual-size"] / 1024 / 1024 / 1024) * 100) / 100
+      } GiB)`;
+    },
   },
   watch: {
     createType(val, oldVal) {
@@ -312,25 +272,20 @@ export default defineComponent({
     },
     createVM(val, oldVal) {
       const fileName = basename(this.file);
-      this.file = join(remote.app.getPath("documents"), "QEMU", val, fileName);
+      this.file = join("~/Documents/QEMU", val, fileName);
     },
     vm(val, oldVal) {
       if (this.knownOther.includes(this.location)) {
         this.knownOther.splice(this.item, 1);
       }
       const fileName = basename(this.location);
-      this.location = join(
-        remote.app.getPath("documents"),
-        "QEMU",
-        val,
-        fileName
-      );
+      this.location = join("~/Documents/QEMU", val, fileName);
       if (val !== "none") {
         data.set(`${val}.disk`, this.file);
         data.set(`${val}.format`, this.info.format);
         data.set(`${val}.size`, this.info["virtual-size"]);
         appendFile(
-          join(remote.app.getPath("documents"), "QEMU", val, "run"),
+          join("~/Documents/QEMU", val, "run"),
           ` -hda ${this.location} -boot h`
         );
       }
@@ -339,11 +294,11 @@ export default defineComponent({
       exec(`qemu-img info ${val} --output json`, (err, stdout) => {
         this.info = JSON.parse(stdout);
       });
-    }
+    },
   },
   created() {
     this.refreshTable();
-  }
+  },
 });
 </script>
 

@@ -2,16 +2,12 @@
   "ctx": {},
   "tauri": {
     "embeddedServer": {
-      "active": false
+      "active": true
     },
-    "allowlist": {
-      "event": true
-    }
-  },
     "bundle": {
       "active": true,
       "targets": "all",
-      "identifier": "com.tauri.dev",
+      "identifier": "app.ravenclaw900.qemugui",
       "icon": [
         "icons/32x32.png",
         "icons/128x128.png",
@@ -22,9 +18,9 @@
       "resources": [],
       "externalBin": [],
       "copyright": "",
-      "category": "DeveloperTool",
-      "shortDescription": "",
-      "longDescription": "",
+      "category": "Utility",
+      "shortDescription": "A GUI for QEMU",
+      "longDescription": "A GUI for QEMU, built with Tauri and Vue.js, based off of VirtualBox",
       "deb": {
         "depends": [],
         "useBootstrapper": false
@@ -41,10 +37,7 @@
     },
     "window": {
       "title": "QEMU GUI",
-      "width": 800,
-      "height": 600,
-      "resizable": true,
-      "fullscreen": false
+      "resizable": true
     },
     "security": {
       "csp": "default-src blob: data: filesystem: ws: http: https: 'unsafe-eval' 'unsafe-inline'"

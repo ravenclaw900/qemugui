@@ -10,8 +10,8 @@ import { defineComponent } from "vue";
 
 export default defineComponent({
   props: {
-    header: String
-  }
+    header: String,
+  },
 });
 </script>
 

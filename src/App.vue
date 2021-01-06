@@ -8,25 +8,16 @@
 import VMList from "@/components/VMList.vue";
 import SettingsPane from "@/components/SettingsPane.vue";
 import ActionBar from "@/components/ActionBar.vue";
-import { ipcRenderer } from "electron";
+import data from "store";
+
+console.log(data);
 
 export default {
   components: {
     VMList,
     SettingsPane,
-    ActionBar
+    ActionBar,
   },
-  mounted() {
-    ipcRenderer.on("newVM", () => {
-      this.$router.push("/new");
-    });
-    ipcRenderer.on("deleteVM", () => {
-      this.$router.push("/delete");
-    });
-    ipcRenderer.on("diskImages", () => {
-      this.$router.push("/image");
-    });
-  }
 };
 </script>
 

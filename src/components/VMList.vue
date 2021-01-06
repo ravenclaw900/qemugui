@@ -15,48 +15,38 @@
 <script lang="ts">
 import { defineComponent } from "vue";
 import { execFile } from "child_process";
-import { remote } from "electron";
 import { join } from "path";
 import { readFile, writeFile } from "fs-extra";
-import Store from "electron-store";
-
-const data = new Store({ watch: true });
+import data from "store";
 
 export default defineComponent({
   data() {
     return {
-      tabs: [] as string[]
+      tabs: [] as string[],
     };
   },
   methods: {
     startVM(index: number) {
       const name = this.tabs[index];
-      execFile(join(remote.app.getPath("documents"), "QEMU", name, "run"));
-      if (data.has(`${name}.installer`)) {
-        data.delete(`${name}.installer`);
-        readFile(
-          join(remote.app.getPath("documents"), "QEMU", name, "run"),
-          (err, buf) => {
-            const lines = buf.toString();
-            const file = lines.split(" ");
-            file.splice(file.indexOf("-cdrom"), 2);
-            file[file.indexOf("-boot") + 1] = "c";
-            writeFile(
-              join(remote.app.getPath("documents"), "QEMU", name, "run"),
-              file.join(" ")
-            );
-          }
-        );
+      execFile(join("~/Documents/QEMU", name, "run"));
+      if (data.get(`${name}.installer`)) {
+        data.remove(`${name}.installer`);
+        readFile(join("~/Documents/QEMU", name, "run"), (err, buf) => {
+          const lines = buf.toString();
+          const file = lines.split(" ");
+          file.splice(file.indexOf("-cdrom"), 2);
+          file[file.indexOf("-boot") + 1] = "c";
+          writeFile(join("~/Documents/QEMU", name, "run"), file.join(" "));
+        });
       }
-    }
+    },
   },
   created() {
     this.tabs = [];
-    for (const item of data) {
+    data.each((item) => {
       this.tabs.push(item[0]);
-    }
-    data.onDidAnyChange(() => remote.getCurrentWindow().reload());
-  }
+    });
+  },
 });
 </script>
 

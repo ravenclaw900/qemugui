@@ -20,34 +20,31 @@
 import { defineComponent } from "vue";
 import { remove } from "fs-extra";
 import { join } from "path";
-import { remote } from "electron";
-import Store from "electron-store";
-
-const data = new Store();
+import data from "store";
 
 export default defineComponent({
   data() {
     return {
-      checked: [] as string[]
+      checked: [] as string[],
     };
   },
   computed: {
     names() {
       const values: string[] = [];
-      for (const item of data) {
+      data.each((item) => {
         values.push(item[0]);
-      }
+      });
       return values;
-    }
+    },
   },
   methods: {
     handleSubmit() {
       for (const item of this.checked) {
-        data.delete(item);
-        remove(join(remote.app.getPath("documents"), "QEMU", item));
+        data.remove(item);
+        remove(join("~/Documents/QEMU", item));
       }
       this.$router.push("/");
-    }
-  }
+    },
+  },
 });
 </script>

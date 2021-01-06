@@ -18,15 +18,12 @@
 </template>
 
 <script>
-import Store from "electron-store";
-
 import InfoDisplay from "@/components/InfoDisplay.vue";
-
-const data = new Store();
+import data from "store";
 
 export default {
   components: {
-    InfoDisplay
+    InfoDisplay,
   },
   computed: {
     config() {
@@ -41,7 +38,7 @@ export default {
       } else {
         return false;
       }
-    }
-  }
+    },
+  },
 };
 </script>

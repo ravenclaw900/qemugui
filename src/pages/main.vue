@@ -13,23 +13,20 @@
 <script lang="ts">
 import { exec } from "child_process";
 import { defineComponent } from "vue";
-import fixPath from "fix-path";
-
-fixPath();
 
 export default defineComponent({
   data() {
     return {
-      seen: false
+      seen: false,
     };
   },
   created() {
-    exec("which -s qemu-system-x86_64").on("exit", code => {
+    exec("which -s qemu-system-x86_64").on("exit", (code) => {
       if (code !== 0) {
         this.seen = true;
       }
     });
-  }
+  },
 });
 </script>
 

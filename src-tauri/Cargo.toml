@@ -1,9 +1,9 @@
 [package]
 name = "qemugui"
 version = "0.1.0"
-description = "A Tauri App"
-authors = [ "you" ]
-license = ""
+description = "A GUI for QEMU"
+authors = [ "ravenclaw900" ]
+license = "GPL-3.0"
 repository = ""
 default-run = "qemugui"
 edition = "2018"
