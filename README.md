@@ -1,5 +1,7 @@
 # qemugui
 
+**This is waiting for some more features in Tauri before being updated again**
+
 [![CodeFactor](https://www.codefactor.io/repository/github/ravenclaw900/qemugui/badge)](https://www.codefactor.io/repository/github/ravenclaw900/qemugui)
 [![dependencies Status](https://status.david-dm.org/gh/ravenclaw900/qemugui.svg)](https://david-dm.org/ravenclaw900/qemugui)
 
